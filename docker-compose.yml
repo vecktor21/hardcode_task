@@ -1,0 +1,22 @@
+version: '3.4'
+
+services:
+  testtask.gateway:
+    image: ${DOCKER_REGISTRY-}testtaskgateway
+    build:
+      context: .
+      dockerfile: TestTask/Dockerfile
+
+  testtask.itemsservice.bus:
+    image: ${DOCKER_REGISTRY-}testtaskitemsservicebus
+    build:
+      context: .
+      dockerfile: ItemsService/TestTask.ItemsService.Bus/Dockerfile
+
+
+  testtask.itemsservice.grpc:
+    image: ${DOCKER_REGISTRY-}testtaskitemsservicegrpc
+    build:
+      context: .
+      dockerfile: ItemsService/TestTask.ItemsService.Grpc/Dockerfile
+
