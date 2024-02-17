@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public string CategoryName { get; set; }
-        public List<CategoryAttributeInfo> AttributesInfo { get; set; }
+        public List<CategoryAttributeInfo> AttributesInfo { get; set; } = new();
     }
 
     public class CategoryAttributeInfo

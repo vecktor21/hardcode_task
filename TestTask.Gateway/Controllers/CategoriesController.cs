@@ -1,6 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Grpc.Core;
+using Grpc.Net.Client;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using TestTask.Gateway.Dtos;
+using TestTask.Gateway.Options;
+using TestTask.protos.Category;
 
 namespace TestTask.Gateway.Controllers
 {
@@ -8,6 +13,18 @@ namespace TestTask.Gateway.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
+        TestTask.protos.Category.CategoryService.CategoryServiceClient categoryClient;
+        private readonly IOptions<GrpcOptions> categoryGrpcOptions;
+        private readonly ILogger<CategoriesController> logger;
+
+        public CategoriesController(IOptions<GrpcOptions> categoryGrpcOptions, ILogger<CategoriesController> logger)
+        {
+            if (String.IsNullOrEmpty(categoryGrpcOptions.Value.ItemsGrpcServer)) throw new ArgumentNullException("Empty Grpc.ItemsGrpcServer value");
+            var channel = GrpcChannel.ForAddress(categoryGrpcOptions.Value.ItemsGrpcServer);
+            categoryClient = new CategoryService.CategoryServiceClient(channel);
+            this.categoryGrpcOptions = categoryGrpcOptions;
+            this.logger = logger;
+        }
 
         /// <summary>
         /// получение информации о категории: доступные атрибуты и их типы
@@ -16,9 +33,26 @@ namespace TestTask.Gateway.Controllers
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         [HttpGet("{id:int}")]
-        public Task<CategoryInfoDto> GetCategory(int id)
+        public async Task<CategoryInfoDto> GetCategory(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var result = await categoryClient.GetCategoryByIdAsync(new GetCategoryByIdFilter { Id = id });
+
+                return CategoryGrpcResponseToCategoryInfoDto(result);
+            }
+            catch(RpcException rpcEx)
+            {
+                logger.LogError($"Error while executing gRPC request; Status: {rpcEx.StatusCode}");
+                logger.LogError(rpcEx.Message);
+                logger.LogError(rpcEx.StackTrace);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -28,9 +62,26 @@ namespace TestTask.Gateway.Controllers
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         [HttpGet("{name}")]
-        public Task<CategoryInfoDto> GetCategory(string name)
+        public async Task<CategoryInfoDto> GetCategory(string name)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var result = await categoryClient.GetCategoryByNameAsync(new GetCategoryByNameFilter { Name = name });
+
+                return CategoryGrpcResponseToCategoryInfoDto(result);
+            }
+            catch (RpcException rpcEx)
+            {
+                logger.LogError($"Error while executing gRPC request; Status: {rpcEx.StatusCode}");
+                logger.LogError(rpcEx.Message);
+                logger.LogError(rpcEx.StackTrace);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message);
+                throw;
+            }
         }
         
         /// <summary>
@@ -65,6 +116,25 @@ namespace TestTask.Gateway.Controllers
         public Task DeleteCategory(int categoryId)
         {
             throw new NotImplementedException();
+        }
+
+
+        private static CategoryInfoDto CategoryGrpcResponseToCategoryInfoDto(Category category)
+        {
+            CategoryInfoDto categoryInfoDto = new CategoryInfoDto();
+
+            categoryInfoDto.Id = category.Id;
+            categoryInfoDto.CategoryName = category.CategoryName;
+            categoryInfoDto.AttributesInfo = category.AttributesInfo.Select(s => new CategoryAttributeInfo
+                {
+                    Id = s.Id,
+                    AttributeDataTypeId = s.AttributeDataTypeId,
+                    AttributeDataTypeName = s.AttributeDataTypeName,
+                    AttributeName = s.AttributeName,
+                })
+                .ToList();
+
+            return categoryInfoDto;
         }
     }
 }
