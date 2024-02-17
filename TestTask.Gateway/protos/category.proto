@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+option csharp_namespace = "TestTask.protos.Category";
+
+service CategoryService{
+	rpc GetCategoryByName (GetCategoryByNameFilter) returns (Category);
+	rpc GetCategoryById (GetCategoryByIdFilter) returns (Category);
+}
+
+message GetCategoryByNameFilter{
+    string Name = 1;
+}
+message GetCategoryByIdFilter{
+    int32 Id = 1;
+}
+
+message Category{
+    int32 Id = 1;
+	string CategoryName = 2;
+	repeated CategoryAttribute AttributesInfo = 3;
+}
+
+message CategoryAttribute{
+    int32 Id = 1;
+    string AttributeName = 2;
+    int32 AttributeDataTypeId = 3;
+    string AttributeDataTypeName = 4;
+}

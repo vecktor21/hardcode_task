@@ -2,12 +2,16 @@ version: '3.4'
 
 services:
   testtask.gateway:
+    networks:
+      - local
     image: ${DOCKER_REGISTRY-}testtaskgateway
     build:
       context: .
       dockerfile: TestTask.Gateway/Dockerfile
 
   testtask.itemsservice.bus:
+    networks:
+      - local
     image: ${DOCKER_REGISTRY-}testtaskitemsservicebus
     build:
       context: .
@@ -15,8 +19,23 @@ services:
 
 
   testtask.itemsservice.grpc:
+    networks:
+      - local
     image: ${DOCKER_REGISTRY-}testtaskitemsservicegrpc
     build:
       context: .
       dockerfile: ItemsService/TestTask.ItemsService.Grpc/Dockerfile
 
+      
+  masstransit.bus:
+    networks:
+      - local
+    image: masstransit/rabbitmq  
+    volumes:
+      - bus_volume:/var/lib/rabbitmq
+
+networks:
+  local:
+  
+volumes:
+  bus_volume:

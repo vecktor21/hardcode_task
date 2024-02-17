@@ -1,6 +1,6 @@
-﻿namespace TestTask.Gateway.Dtos
+﻿namespace TestTask.Bus.Events
 {
-    public class CategoryInfoDto
+    internal class CategoryUpdatedEvent
     {
         public int Id { get; set; }
         public string CategoryName { get; set; }
@@ -12,6 +12,6 @@
         public int Id { get; set; }
         public string AttributeName { get; set; }
         public int AttributeDataTypeId { get; set; }
-        public string AttributeDataTypeName { get; set;}
+        public string AttributeDataTypeName { get; set; }
     }
 }

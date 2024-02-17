@@ -6,20 +6,30 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
+      - Grpc__ItemsGrpcServer=http://testtask.itemsservice.grpc:8080
+      - ConnectionStrings__MasstransitHost=masstransit.bus
+      - ConnectionStrings__MasstransitVirtualHost=/
+      - ConnectionStrings__MasstransitUserName=admin
+      - ConnectionStrings__MasstransitUserPassword=2QMqxDM35
     ports:
       - "127.0.0.1:8080:8080"
       - "127.0.0.1:8081:8081"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+
   testtask.itemsservice.bus:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__MasstransitHost=masstransit.bus
+      - ConnectionStrings__MasstransitVirtualHost=/
+      - ConnectionStrings__MasstransitUserName=admin
+      - ConnectionStrings__MasstransitUserPassword=2QMqxDM35
     ports:
-      - "8080"
-      - "8081"
+      - "127.0.0.1:5000:8080"
+      - "127.0.0.1:5001:8081"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
@@ -30,8 +40,16 @@ services:
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
     ports:
-      - "8080"
-      - "8081"
+      - "127.0.0.1:5010:8080"
+      - "127.0.0.1:5011:8081"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+ 
+  masstransit.bus:
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=2QMqxDM35
