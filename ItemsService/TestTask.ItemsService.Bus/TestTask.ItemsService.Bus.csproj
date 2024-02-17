@@ -21,4 +21,8 @@
     <ProjectReference Include="..\TestTask.ItemsService.Infrastructure\TestTask.ItemsService.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Messages\Commands\" />
+  </ItemGroup>
+
 </Project>

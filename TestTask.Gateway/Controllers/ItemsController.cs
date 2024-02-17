@@ -1,7 +1,9 @@
 ﻿using Grpc.Core;
 using Grpc.Net.Client;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using TestTask.Bus.Events;
 using TestTask.Gateway.Dtos;
 using TestTask.Gateway.Options;
 using TestTask.protos.Category;
@@ -16,13 +18,17 @@ namespace TestTask.Gateway.Controllers
         ItemService.ItemServiceClient itemClient;
         private readonly IOptions<GrpcOptions> itemGrpcOptions;
         private readonly ILogger<ItemsController> logger;
+        private readonly IBus bus;
+        private readonly ISendEndpointProvider sendEndpointProvider;
 
-        public ItemsController(IOptions<GrpcOptions> itemGrpcOptions, ILogger<ItemsController> logger)
+        public ItemsController(IOptions<GrpcOptions> itemGrpcOptions, ILogger<ItemsController> logger, IBus bus, ISendEndpointProvider sendEndpointProvider)
         {
             if (String.IsNullOrEmpty(itemGrpcOptions.Value.ItemsGrpcServer)) throw new ArgumentNullException("Empty Grpc.ItemsGrpcServer value");
             var channel = GrpcChannel.ForAddress(itemGrpcOptions.Value.ItemsGrpcServer);
             itemClient = new ItemService.ItemServiceClient(channel);
             this.logger = logger;
+            this.bus = bus;
+            this.sendEndpointProvider = sendEndpointProvider;
             this.itemGrpcOptions = itemGrpcOptions;
         }
         /// <summary>
@@ -100,9 +106,26 @@ namespace TestTask.Gateway.Controllers
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         [HttpPost]
-        public Task CreateItem([FromBody] CreateItemDto newItem)
+        public async Task CreateItem([FromBody] CreateItemDto newItem)
         {
-            throw new NotImplementedException();
+            logger.LogInformation($"Creating new Item {newItem.ItemName}");
+            await bus.Publish<ItemCreatedEvent>(new ItemCreatedEvent
+            {
+                Price = newItem.Price,
+                ItemName = newItem.Description,
+                Description = newItem.Description,
+                Category = new CreateCategory
+                {
+                    CategoryName = newItem.Category.CategoryName,
+                    Attributes = newItem.Category.Attributes.Select(s => new CreateCategoryAttribute
+                    {
+                        AttributeName = s.AttributeName,
+                        DataType = s.DataType,
+                        Value = s.Value
+                    })
+                    .ToList()
+                }
+            });
         }
 
 
@@ -113,9 +136,55 @@ namespace TestTask.Gateway.Controllers
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         [HttpPut]
-        public Task UpdateItem([FromBody] ItemDto updatedItem)
+        public async Task UpdateItem([FromBody] ItemDto updatedItem)
         {
-            throw new NotImplementedException();
+            logger.LogInformation($"Updating Item {updatedItem.ItemName}, {updatedItem.Id}");
+
+            try
+            {
+                var result = await itemClient.GetItemsByIdAsync(new ItemFilterById { Id = updatedItem.Id });
+
+                if (result == null)
+                {
+                    var mes = $"Item {updatedItem.Id} does not exists";
+                    logger.LogError(mes);
+                    throw new ArgumentException(mes);
+                }
+            }
+            catch (RpcException rpcEx)
+            {
+                logger.LogError($"Error while executing gRPC request; Status: {rpcEx.StatusCode}");
+                logger.LogError(rpcEx.Message);
+                logger.LogError(rpcEx.StackTrace);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message);
+                throw;
+            }
+
+            await bus.Publish<UpdateItemEvent>(new 
+            {
+                Id = updatedItem.Id,
+                Price = updatedItem.Price,
+                ItemName= updatedItem.ItemName,
+                Description = updatedItem.Description,
+                Category = new Bus.Events.Category
+                {
+                    Id = updatedItem.Category.Id,
+                    CategoryName = updatedItem.Category.CategoryName,
+                    Attributes = updatedItem.Category.Attributes.Select(s=> new Bus.Events.CategoryAttribute 
+                    { 
+                        AttributeName = s.AttributeName,
+                        DataType= s.DataType,
+                        Id = updatedItem.Id,
+                        Value = updatedItem.Price
+                    })
+                    .ToList()
+                },
+                __CorrelationId = updatedItem.Id
+            });
         }
 
         /// <summary>
@@ -125,9 +194,39 @@ namespace TestTask.Gateway.Controllers
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         [HttpDelete("{itemId:int}")]
-        public Task UpdateItem(int itemId)
+        public async Task DeleteItem(int itemId)
         {
-            throw new NotImplementedException();
+            logger.LogInformation($"Deleting Item {itemId}");
+
+            try
+            {
+                var result = await itemClient.GetItemsByIdAsync(new ItemFilterById { Id = itemId });
+
+                if (result == null)
+                {
+                    var mes = $"Item {itemId} does not exists";
+                    logger.LogError(mes);
+                    throw new ArgumentException(mes);
+                }
+            }
+            catch (RpcException rpcEx)
+            {
+                logger.LogError($"Error while executing gRPC request; Status: {rpcEx.StatusCode}");
+                logger.LogError(rpcEx.Message);
+                logger.LogError(rpcEx.StackTrace);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message);
+                throw;
+            }
+
+            await bus.Publish<DeleteItemEvent>(new
+            {
+                Id = itemId,
+                __CorrelationId = itemId
+            });
         }
 
 
