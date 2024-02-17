@@ -5,7 +5,7 @@
         /// <summary>
         /// id товара
         /// </summary>
-        public int Id { get; private set; }
+        public int Id { get; set; }
         /// <summary>
         /// название товара
         /// </summary>
@@ -17,10 +17,10 @@
         /// <summary>
         /// цена на товар
         /// </summary>
-        public double Price { get; private set; }
+        public double Price { get; set; }
         /// <summary>
         /// категория товара
         /// </summary>
-        public CategoryDto Category { get; private set; }
+        public CategoryDto Category { get; set; }
     }
 }

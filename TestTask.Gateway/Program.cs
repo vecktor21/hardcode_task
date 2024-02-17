@@ -1,8 +1,10 @@
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using TestTask.Gateway.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.Configure<GrpcOptions>(builder.Configuration.GetSection("Grpc"));
 
 builder.Services.AddSwaggerGen(c=>
     {
