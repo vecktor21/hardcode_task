@@ -103,7 +103,7 @@ namespace TestTask.Gateway.Controllers
             {
                 var result = await categoryClient.GetCategoryByNameAsync(new GetCategoryByNameFilter { Name = newCategory.CategoryName });
 
-                if(result != null || result.Id != 0)
+                if(result != null || result?.Id != 0)
                 {
                     logger.LogError($"Category {newCategory.CategoryName} already exists");
                 }
