@@ -103,7 +103,7 @@ namespace TestTask.Gateway.Controllers
             {
                 var result = await categoryClient.GetCategoryByNameAsync(new GetCategoryByNameFilter { Name = newCategory.CategoryName });
 
-                if(result != null)
+                if(result != null || result.Id != 0)
                 {
                     logger.LogError($"Category {newCategory.CategoryName} already exists");
                 }
@@ -146,7 +146,7 @@ namespace TestTask.Gateway.Controllers
             {
                 var result = await categoryClient.GetCategoryByNameAsync(new GetCategoryByNameFilter { Name = updatedCategory.CategoryName });
 
-                if (result == null)
+                if (result == null || result.Id == 0)
                 {
                     logger.LogError($"Category {updatedCategory.CategoryName} does not exists");
                 }
@@ -192,7 +192,7 @@ namespace TestTask.Gateway.Controllers
             {
                 var result = await categoryClient.GetCategoryByIdAsync(new GetCategoryByIdFilter { Id = categoryId });
 
-                if (result == null)
+                if (result == null || result.Id == 0)
                 {
                     logger.LogError($"Category {categoryId} does not exists");
                 }
