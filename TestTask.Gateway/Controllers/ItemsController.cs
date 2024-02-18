@@ -136,7 +136,7 @@ namespace TestTask.Gateway.Controllers
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         [HttpPut]
-        public async Task UpdateItem([FromBody] ItemDto updatedItem)
+        public async Task UpdateItem([FromBody] UpdateItemDto updatedItem)
         {
             logger.LogInformation($"Updating Item {updatedItem.ItemName}, {updatedItem.Id}");
 
@@ -144,7 +144,7 @@ namespace TestTask.Gateway.Controllers
             {
                 var result = await itemClient.GetItemsByIdAsync(new ItemFilterById { Id = updatedItem.Id });
 
-                if (result == null)
+                if (result == null || result.Id == 0)
                 {
                     var mes = $"Item {updatedItem.Id} does not exists";
                     logger.LogError(mes);
@@ -173,10 +173,8 @@ namespace TestTask.Gateway.Controllers
                 Category = new Bus.Events.Category
                 {
                     Id = updatedItem.Category.Id,
-                    CategoryName = updatedItem.Category.CategoryName,
                     Attributes = updatedItem.Category.Attributes.Select(s=> new Bus.Events.CategoryAttribute 
                     { 
-                        AttributeName = s.AttributeName,
                         DataType= s.DataType,
                         Id = updatedItem.Id,
                         Value = updatedItem.Price
@@ -202,7 +200,7 @@ namespace TestTask.Gateway.Controllers
             {
                 var result = await itemClient.GetItemsByIdAsync(new ItemFilterById { Id = itemId });
 
-                if (result == null)
+                if (result == null || result.Id == 0)
                 {
                     var mes = $"Item {itemId} does not exists";
                     logger.LogError(mes);

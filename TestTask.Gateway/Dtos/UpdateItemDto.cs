@@ -1,19 +1,19 @@
-﻿namespace TestTask.Bus.Events
+﻿namespace TestTask.Gateway.Dtos
 {
-    internal class UpdateItemEvent
+    public class UpdateItemDto
     {
         public int Id { get; set; }
         public string ItemName { get; set; }
         public string Description { get; set; }
         public double Price { get; set; }
-        public Category Category { get; set; }
+        public UpdateItemCategoryDto Category { get; set; }
     }
-    internal class Category
+    public class UpdateItemCategoryDto
     {
         public int Id { get; set; }
-        public List<CategoryAttribute> Attributes { get; set; }
+        public List<UpdateItemAttributeDto> Attributes { get; set; }
     }
-    internal class CategoryAttribute
+    public class UpdateItemAttributeDto
     {
         public int Id { get; set; }
         public object Value { get; set; }

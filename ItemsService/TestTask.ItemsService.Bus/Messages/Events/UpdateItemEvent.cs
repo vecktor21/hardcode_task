@@ -11,13 +11,11 @@
     internal class Category
     {
         public int Id { get; set; }
-        public string CategoryName { get; set; }
         public List<CategoryAttribute> Attributes { get; set; }
     }
     internal class CategoryAttribute
     {
         public int Id { get; set; }
-        public string AttributeName { get; set; }
         public object Value { get; set; }
         public int DataType { get; set; }
     }
