@@ -41,7 +41,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Mapping\" />
+    <Folder Include="Messages\Commands\" />
   </ItemGroup>
 
 </Project>

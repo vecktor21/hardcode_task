@@ -31,10 +31,11 @@ services:
     networks:
       - local
     image: masstransit/rabbitmq  
-    ports:
-      - "15672:15672"
-      - "5672:5672"
+    volumes:
+      - bus_volume:/var/lib/rabbitmq
 
 networks:
   local:
   
+volumes:
+  bus_volume:
