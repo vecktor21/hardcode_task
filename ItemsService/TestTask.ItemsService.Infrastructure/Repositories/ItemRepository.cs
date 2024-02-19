@@ -4,7 +4,7 @@ using TestTask.ItemsService.Domain.Repositories;
 
 namespace TestTask.ItemsService.Infrastructure.Repositories
 {
-    internal class ItemRepository : IItemRepository
+    public class ItemRepository : IItemRepository
     {
         public Task CreateItem(CreateItemDto item)
         {

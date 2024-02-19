@@ -3,7 +3,7 @@ using TestTask.ItemsService.Domain.Repositories;
 
 namespace TestTask.ItemsService.Infrastructure.Repositories
 {
-    internal class CategoryRepository : ICategoryRepository
+    public class CategoryRepository : ICategoryRepository
     {
         public Task CreateCategory(CreateCategoryInfoDto categoryInfo)
         {
