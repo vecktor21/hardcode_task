@@ -27,6 +27,7 @@ services:
       - ConnectionStrings__MasstransitVirtualHost=/
       - ConnectionStrings__MasstransitUserName=admin
       - ConnectionStrings__MasstransitUserPassword=2QMqxDM35
+      - ConnectionStrings__Default=Host=postgres.db;Database=items_db;Username=postgres;Password=5Ss6RW2QCHc;
     ports:
       - "127.0.0.1:5000:8080"
       - "127.0.0.1:5001:8081"
@@ -39,6 +40,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__Default=Host=postgres.db;Database=items_db;Username=postgres;Password=5Ss6RW2QCHc;
     ports:
       - "127.0.0.1:5010:8080"
       - "127.0.0.1:5011:8081"
@@ -53,3 +55,19 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=2QMqxDM35
+      
+  postgres.db:
+    image: postgres
+    restart: always
+    networks:
+      - local
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=5Ss6RW2QCHc
+      - POSTGRES_DB=items_db
+    volumes:
+      - postgres.volume:/var/lib/postgresql/data
+
+volumes:
+  postgres.volume:

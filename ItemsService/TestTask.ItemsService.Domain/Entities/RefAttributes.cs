@@ -2,7 +2,7 @@
 
 namespace TestTask.ItemsService.Domain.Entities
 {
-    internal class RefAttributes
+    public class RefAttributes
     {
         public int Id { get; set; }
         public string AttributeName { get; set; }

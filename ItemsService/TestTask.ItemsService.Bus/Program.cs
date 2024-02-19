@@ -2,8 +2,11 @@ using MassTransit;
 using MassTransit.RabbitMq;
 using TestTask.CategorysService.Bus.Consumers;
 using TestTask.ItemsService.Bus.Consumers;
+using TestTask.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.InjectInfrastructureServices(builder.Configuration);
 
 builder.Services
     .AddMassTransit(x =>

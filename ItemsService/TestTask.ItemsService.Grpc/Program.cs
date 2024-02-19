@@ -1,11 +1,16 @@
 using TestTask.Api.Grpc.Services;
+using TestTask.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.InjectInfrastructureServices(builder.Configuration);
 
 // Add services to the container.
 builder.Services.AddGrpc();
 
 var app = builder.Build();
+
+await InrastructureDi.Migrate(app.Services);
 
 // Configure the HTTP request pipeline.
 app.MapGrpcService<ItemsServiceImplementation>();

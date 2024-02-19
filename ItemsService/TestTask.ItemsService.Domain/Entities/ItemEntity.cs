@@ -1,6 +1,6 @@
 ﻿namespace TestTask.ItemsService.Domain.Entities
 {
-    internal class ItemEntity
+    public class ItemEntity
     {
         public int Id { get; set; }
         public string Name { get; set; }
